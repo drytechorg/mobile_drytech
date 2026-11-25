@@ -16,7 +16,7 @@ class DryTechApiException implements Exception {
 class DryTechApi {
   static const String baseUrl = String.fromEnvironment(
     'DRYTECH_API_URL',
-    defaultValue: 'http://localhost:3000/api',
+    defaultValue: 'https://api-drytech.onrender.com/api',
   );
 
   final http.Client _client;

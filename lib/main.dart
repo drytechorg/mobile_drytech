@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'drytech_api.dart';
 
 void main() => runApp(const DryTechApp());
 
@@ -1168,6 +1169,8 @@ class HomeScreen extends StatelessWidget {
             section('Ciclo atual'),
             ActiveDryingCard(session: activeDryingSession!),
           ],
+          section('Ciclos sincronizados com o backend'),
+          const BackendLiveCyclesPanel(),
           section('Acesso rápido'),
           Row(
             children: [
@@ -1207,6 +1210,108 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class BackendLiveCyclesPanel extends StatefulWidget {
+  const BackendLiveCyclesPanel({super.key});
+
+  @override
+  State<BackendLiveCyclesPanel> createState() => _BackendLiveCyclesPanelState();
+}
+
+class _BackendLiveCyclesPanelState extends State<BackendLiveCyclesPanel> {
+  final DryTechApi _api = DryTechApi();
+  Timer? _poller;
+  bool _loading = true;
+  String? _error;
+  String? _deviceName;
+  List<Map<String, dynamic>> _cycles = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+    _poller = Timer.periodic(const Duration(seconds: 5), (_) => _load());
+  }
+
+  @override
+  void dispose() {
+    _poller?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    try {
+      final devices = await _api.getDevices();
+      if (devices.isEmpty) {
+        if (!mounted) return;
+        setState(() {
+          _cycles = [];
+          _deviceName = null;
+          _error = null;
+          _loading = false;
+        });
+        return;
+      }
+      final cycles = <Map<String, dynamic>>[];
+      for (final device in devices) {
+        final id = device['id']?.toString();
+        if (id == null || id.isEmpty) continue;
+        final deviceCycles = await _api.getCycles(id);
+        cycles.addAll(deviceCycles.map((cycle) => {...cycle, '_deviceName': device['name']?.toString() ?? device['serialNumber']?.toString() ?? 'Secadora'}));
+      }
+      if (!mounted) return;
+      setState(() {
+        _deviceName = devices.map((device) => device['name']?.toString() ?? device['serialNumber']?.toString() ?? 'Secadora').join(', ');
+        _cycles = cycles;
+        _error = null;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString().replaceFirst('Exception: ', '');
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) return const Panel(child: LinearProgressIndicator(color: orange));
+    if (_error != null) {
+      return Panel(child: Row(children: [
+        const Icon(Icons.cloud_off_outlined, color: muted),
+        const SizedBox(width: 10),
+        Expanded(child: Text('Backend indisponível: $_error', style: const TextStyle(color: muted, fontSize: 12))),
+        IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded, color: orange)),
+      ]));
+    }
+    if (_deviceName == null) {
+      return const Panel(child: Text('Nenhuma secadora cadastrada no backend. Cadastre uma secadora para sincronizar ciclos.', style: TextStyle(color: muted, fontSize: 12)));
+    }
+    if (_cycles.isEmpty) {
+      return Panel(child: Row(children: [
+        const Icon(Icons.sync_rounded, color: orange),
+        const SizedBox(width: 10),
+        Expanded(child: Text('$_deviceName · aguardando ciclos do painel web.', style: const TextStyle(color: muted, fontSize: 12))),
+        IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded, color: orange)),
+      ]));
+    }
+    return Panel(padding: EdgeInsets.zero, child: Column(children: [
+      for (var i = 0; i < _cycles.length; i++) ...[
+        ListTile(
+          dense: true,
+          leading: const Icon(Icons.sync_rounded, color: orange),
+          title: Text(_cycles[i]['foodName']?.toString() ?? _cycles[i]['food']?.toString() ?? 'Ciclo', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+          subtitle: Text('${_cycles[i]['status'] ?? '—'} · ${_cycles[i]['_deviceName'] ?? _deviceName}', style: const TextStyle(fontSize: 11)),
+          trailing: Text('${_cycles[i]['targetTemperature'] ?? '—'} °C', style: const TextStyle(color: orange, fontWeight: FontWeight.w800)),
+        ),
+        if (i < _cycles.length - 1) const Divider(height: 1, indent: 16, endIndent: 16),
+      ],
+      Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded, size: 16), label: const Text('Atualizar'))),
+    ]));
   }
 }
 
