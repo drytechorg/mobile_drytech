@@ -45,13 +45,16 @@ class AppNotification {
   }) : createdAt = createdAt ?? DateTime.now();
 }
 
-void addAppNotification(String title, String message, {DryingSession? session}) {
+void addAppNotification(String title, String message,
+    {DryingSession? session}) {
   if (!appNotificationsEnabled) return;
-  appNotifications.insert(0, AppNotification(
-    title: title,
-    message: message,
-    session: session,
-  ));
+  appNotifications.insert(
+      0,
+      AppNotification(
+        title: title,
+        message: message,
+        session: session,
+      ));
 }
 
 String formatDateTime(DateTime date) {
@@ -75,7 +78,8 @@ const List<List<String>> foodCatalog = [
 
 String get signedInName => activeAccount?.name ?? 'Usuário';
 String get signedInFirstName => signedInName.trim().split(RegExp(r'\s+')).first;
-String get signedInHandle => activeAccount == null ? '@usuario' : '@${activeAccount!.username}';
+String get signedInHandle =>
+    activeAccount == null ? '@usuario' : '@${activeAccount!.username}';
 
 void showMessage(BuildContext context, String message) {
   // SnackBar fixa não disputa espaço com a NavigationBar em janelas pequenas.
@@ -144,12 +148,14 @@ class DryTechApp extends StatelessWidget {
         ),
         snackBarTheme: SnackBarThemeData(
           behavior: SnackBarBehavior.fixed,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(color: lineColor),
@@ -300,9 +306,8 @@ class AppPage extends StatelessWidget {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final contentWidth = constraints.maxWidth > 760
-                ? 760.0
-                : constraints.maxWidth;
+            final contentWidth =
+                constraints.maxWidth > 760 ? 760.0 : constraints.maxWidth;
             return Center(
               child: SizedBox(
                 width: contentWidth,
@@ -505,7 +510,9 @@ class DryingSession extends ChangeNotifier {
   bool get isCancelled => _isCancelled;
   bool get isFinished => _isCompleted || _isCancelled;
   bool get isRunning => !_isPaused && !isFinished;
-  double get progress => totalSeconds == 0 ? 1.0 : (1 - _remainingSeconds / totalSeconds).clamp(0.0, 1.0).toDouble();
+  double get progress => totalSeconds == 0
+      ? 1.0
+      : (1 - _remainingSeconds / totalSeconds).clamp(0.0, 1.0).toDouble();
 
   void _startTicker() {
     _endsAt = DateTime.now().add(Duration(seconds: _remainingSeconds));
@@ -517,7 +524,8 @@ class DryingSession extends ChangeNotifier {
   void _update() {
     if (_endsAt == null || !isRunning) return;
     final millisecondsLeft = _endsAt!.difference(DateTime.now()).inMilliseconds;
-    _remainingSeconds = millisecondsLeft <= 0 ? 0 : (millisecondsLeft / 1000).ceil();
+    _remainingSeconds =
+        millisecondsLeft <= 0 ? 0 : (millisecondsLeft / 1000).ceil();
     if (_remainingSeconds == 0) {
       _isCompleted = true;
       _ticker?.cancel();
@@ -525,7 +533,9 @@ class DryingSession extends ChangeNotifier {
       _endsAt = null;
       if (!_finishNotificationSent) {
         _finishNotificationSent = true;
-        addAppNotification('Ciclo concluído', '$food • ${formatDurationLabel(totalSeconds)}', session: this);
+        addAppNotification(
+            'Ciclo concluído', '$food • ${formatDurationLabel(totalSeconds)}',
+            session: this);
       }
     }
     notifyListeners();
@@ -554,7 +564,8 @@ class DryingSession extends ChangeNotifier {
     _ticker?.cancel();
     _ticker = null;
     _endsAt = null;
-    addAppNotification('Ciclo encerrado', '$food • contagem interrompida', session: this);
+    addAppNotification('Ciclo encerrado', '$food • contagem interrompida',
+        session: this);
     notifyListeners();
   }
 
@@ -565,7 +576,6 @@ class DryingSession extends ChangeNotifier {
     super.dispose();
   }
 }
-
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -779,7 +789,10 @@ class _LoginScreenState extends State<LoginScreen> {
               PrimaryButton(
                 'Entrar',
                 onPressed: () {
-                  final identifier = user.text.trim().replaceFirst(RegExp(r'^@'), '').toLowerCase();
+                  final identifier = user.text
+                      .trim()
+                      .replaceFirst(RegExp(r'^@'), '')
+                      .toLowerCase();
                   if (identifier.isEmpty || pass.text.isEmpty) {
                     showMessage(context, 'Preencha usuário e senha.');
                     return;
@@ -795,9 +808,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
 
                   if (account == null) {
-                    showMessage(context, 'Conta não encontrada. Crie uma conta primeiro.');
+                    showMessage(context,
+                        'Conta não encontrada. Crie uma conta primeiro.');
                   } else if (account.password != pass.text) {
-                    showMessage(context, 'Senha incorreta. Confira e tente novamente.');
+                    showMessage(
+                        context, 'Senha incorreta. Confira e tente novamente.');
                   } else {
                     activeAccount = account;
                     replace(context, const HomeScreen());
@@ -870,7 +885,8 @@ class _PasswordRecoveryDialogState extends State<PasswordRecoveryDialog> {
               TextField(
                 controller: confirmController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Confirmar nova senha'),
+                decoration:
+                    const InputDecoration(labelText: 'Confirmar nova senha'),
               ),
             ],
           ],
@@ -884,9 +900,11 @@ class _PasswordRecoveryDialogState extends State<PasswordRecoveryDialog> {
         FilledButton(
           onPressed: () {
             final email = emailController.text.trim().toLowerCase();
-            final index = _accounts.indexWhere((account) => account.email.toLowerCase() == email);
+            final index = _accounts
+                .indexWhere((account) => account.email.toLowerCase() == email);
             if (email.isEmpty || index < 0) {
-              showMessage(context, 'Não encontramos uma conta com esse e-mail.');
+              showMessage(
+                  context, 'Não encontramos uma conta com esse e-mail.');
               return;
             }
             if (!showPasswordFields) {
@@ -894,7 +912,8 @@ class _PasswordRecoveryDialogState extends State<PasswordRecoveryDialog> {
               return;
             }
             if (passwordController.text.length < 6) {
-              showMessage(context, 'A senha precisa ter pelo menos 6 caracteres.');
+              showMessage(
+                  context, 'A senha precisa ter pelo menos 6 caracteres.');
               return;
             }
             if (passwordController.text != confirmController.text) {
@@ -957,7 +976,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Vamos começar!',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: ink),
+                  style: TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.w900, color: ink),
                 ),
               ),
               const Align(
@@ -986,27 +1006,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
               PrimaryButton(
                 'Criar minha conta',
                 onPressed: () {
-                  final fullName = name.text.trim().replaceAll(RegExp(r'\s+'), ' ');
+                  final fullName =
+                      name.text.trim().replaceAll(RegExp(r'\s+'), ' ');
                   final rawInput = handle.text.trim();
-    final username = rawInput.replaceFirst(RegExp(r'^DRYTECH-', caseSensitive: false), '').replaceFirst(RegExp(r'^@'), '').toLowerCase();
+                  final username = rawInput
+                      .replaceFirst(
+                          RegExp(r'^DRYTECH-', caseSensitive: false), '')
+                      .replaceFirst(RegExp(r'^@'), '')
+                      .toLowerCase();
                   final mail = email.text.trim().toLowerCase();
-                  final emailIsValid = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(mail);
-                  final usernameIsValid = RegExp(r'^[a-z0-9._]{3,20}$').hasMatch(username);
+                  final emailIsValid =
+                      RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(mail);
+                  final usernameIsValid =
+                      RegExp(r'^[a-z0-9._]{3,20}$').hasMatch(username);
 
-                  if ([fullName, username, mail, pwd.text, confirm.text].any((value) => value.trim().isEmpty)) {
+                  if ([fullName, username, mail, pwd.text, confirm.text]
+                      .any((value) => value.trim().isEmpty)) {
                     showMessage(context, 'Preencha todos os campos.');
                   } else if (!emailIsValid) {
                     showMessage(context, 'Digite um e-mail válido.');
                   } else if (!usernameIsValid) {
-                    showMessage(context, 'O usuário deve ter 3 a 20 caracteres: letras, números, ponto ou _.');
+                    showMessage(context,
+                        'O usuário deve ter 3 a 20 caracteres: letras, números, ponto ou _.');
                   } else if (pwd.text.length < 6) {
-                    showMessage(context, 'A senha precisa ter pelo menos 6 caracteres.');
+                    showMessage(context,
+                        'A senha precisa ter pelo menos 6 caracteres.');
                   } else if (pwd.text != confirm.text) {
                     showMessage(context, 'As senhas não coincidem.');
                   } else if (_accounts.any((account) =>
                       account.email.toLowerCase() == mail ||
                       account.username.toLowerCase() == username)) {
-                    showMessage(context, 'Esse e-mail ou nome de usuário já está cadastrado.');
+                    showMessage(context,
+                        'Esse e-mail ou nome de usuário já está cadastrado.');
                   } else {
                     final account = DryTechAccount(
                       name: fullName,
@@ -1017,7 +1048,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     _accounts.add(account);
                     activeAccount = account;
                     final firstName = fullName.split(' ').first;
-                    showMessage(context, 'Conta criada! Bem-vindo(a), $firstName.');
+                    showMessage(
+                        context, 'Conta criada! Bem-vindo(a), $firstName.');
                     replace(context, const HomeScreen());
                   }
                 },
@@ -1069,16 +1101,19 @@ class ActiveDryingCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   alignment: Alignment.center,
-                  child: Text(session.emoji, style: const TextStyle(fontSize: 25)),
+                  child:
+                      Text(session.emoji, style: const TextStyle(fontSize: 25)),
                 ),
                 const SizedBox(width: 13),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(session.food, style: const TextStyle(fontWeight: FontWeight.w800)),
+                      Text(session.food,
+                          style: const TextStyle(fontWeight: FontWeight.w800)),
                       const SizedBox(height: 4),
-                      Text(status, style: const TextStyle(color: muted, fontSize: 12)),
+                      Text(status,
+                          style: const TextStyle(color: muted, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -1118,7 +1153,8 @@ class HomeScreen extends StatelessWidget {
         children: [
           Text(
             'Olá, $signedInFirstName!',
-            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w900, color: ink),
+            style: const TextStyle(
+                fontSize: 25, fontWeight: FontWeight.w900, color: ink),
           ),
           const Text(
             'Tudo pronto para planejar sua próxima secagem.',
@@ -1135,25 +1171,47 @@ class HomeScreen extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
               boxShadow: const [
-                BoxShadow(color: Color(0x22FF650A), blurRadius: 20, offset: Offset(0, 8)),
+                BoxShadow(
+                    color: Color(0x22FF650A),
+                    blurRadius: 20,
+                    offset: Offset(0, 8)),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('PAINEL DRYTECH', style: TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.2)),
+                const Text('PAINEL DRYTECH',
+                    style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                        letterSpacing: 1.2)),
                 const SizedBox(height: 9),
-                const Text('Pronto para começar', style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.w800)),
+                const Text('Pronto para começar',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 23,
+                        fontWeight: FontWeight.w800)),
                 const SizedBox(height: 5),
-                const Text('Configure um ciclo e acompanhe a contagem pelo aplicativo.', style: TextStyle(color: Colors.white, fontSize: 12, height: 1.4)),
+                const Text(
+                    'Configure um ciclo e acompanhe a contagem pelo aplicativo.',
+                    style: TextStyle(
+                        color: Colors.white, fontSize: 12, height: 1.4)),
                 const SizedBox(height: 14),
                 Row(
                   children: [
-                    const Icon(Icons.link_off_rounded, color: Colors.white70, size: 16),
+                    const Icon(Icons.link_off_rounded,
+                        color: Colors.white70, size: 16),
                     const SizedBox(width: 6),
-                    const Expanded(child: Text('Secadora não conectada', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600))),
+                    const Expanded(
+                        child: Text('Secadora Laboratório',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600))),
                     TextButton(
-                      style: TextButton.styleFrom(foregroundColor: Colors.white, visualDensity: VisualDensity.compact),
+                      style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          visualDensity: VisualDensity.compact),
                       onPressed: () => showDialog(
                         context: context,
                         builder: (_) => const DeviceInfoDialog(),
@@ -1165,18 +1223,26 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-          if (activeDryingSession != null && !activeDryingSession!.isCancelled) ...[
+          if (activeDryingSession != null &&
+              !activeDryingSession!.isCancelled) ...[
             section('Ciclo atual'),
             ActiveDryingCard(session: activeDryingSession!),
           ],
-          section('Ciclos sincronizados com o backend'),
+          section('Ciclo de secagem'),
           const BackendLiveCyclesPanel(),
           section('Acesso rápido'),
           Row(
             children: [
-              Expanded(child: _quick(context, 'Nova secagem', Icons.add_circle_outline_rounded, const SelectFoodScreen())),
+              Expanded(
+                  child: _quick(
+                      context,
+                      'Nova secagem',
+                      Icons.add_circle_outline_rounded,
+                      const SelectFoodScreen())),
               const SizedBox(width: 12),
-              Expanded(child: _quick(context, 'Histórico', Icons.history_rounded, const HistoryScreen())),
+              Expanded(
+                  child: _quick(context, 'Histórico', Icons.history_rounded,
+                      const HistoryScreen())),
             ],
           ),
           section('Atividade recente'),
@@ -1186,21 +1252,29 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.inbox_outlined, color: muted, size: 25),
                   SizedBox(width: 12),
-                  Expanded(child: Text('Nenhum ciclo iniciado ainda.', style: TextStyle(color: muted, fontSize: 13))),
+                  Expanded(
+                      child: Text('Nenhum ciclo iniciado ainda.',
+                          style: TextStyle(color: muted, fontSize: 13))),
                 ],
               ),
             )
           else
             ...recentSessions.map((session) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: InfoRow(
-                '${session.emoji}  ${session.food}',
-                '${formatDateTime(session.startedAt)} • ${formatDurationLabel(session.totalSeconds)}',
-                trailing: session.isCompleted ? 'Concluído' : session.isCancelled ? 'Encerrado' : session.isPaused ? 'Pausado' : 'Ativo',
-                trailingColor: session.isCompleted ? Colors.green : orange,
-                onTap: () => go(context, DryingScreen(session: session)),
-              ),
-            )),
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: InfoRow(
+                    '${session.emoji}  ${session.food}',
+                    '${formatDateTime(session.startedAt)} • ${formatDurationLabel(session.totalSeconds)}',
+                    trailing: session.isCompleted
+                        ? 'Concluído'
+                        : session.isCancelled
+                            ? 'Encerrado'
+                            : session.isPaused
+                                ? 'Pausado'
+                                : 'Ativo',
+                    trailingColor: session.isCompleted ? Colors.green : orange,
+                    onTap: () => go(context, DryingScreen(session: session)),
+                  ),
+                )),
           section('Compartilhamento'),
           PrimaryButton(
             'Adicionar amigo',
@@ -1223,95 +1297,245 @@ class BackendLiveCyclesPanel extends StatefulWidget {
 class _BackendLiveCyclesPanelState extends State<BackendLiveCyclesPanel> {
   final DryTechApi _api = DryTechApi();
   Timer? _poller;
+  Timer? _clock;
   bool _loading = true;
+  bool _busy = false;
   String? _error;
-  String? _deviceName;
-  List<Map<String, dynamic>> _cycles = [];
+  Map<String, dynamic>? _snapshot;
 
   @override
   void initState() {
     super.initState();
     _load();
-    _poller = Timer.periodic(const Duration(seconds: 5), (_) => _load());
+    _poller = Timer.periodic(const Duration(seconds: 3), (_) => _load());
+    _clock = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted && _snapshot?['cycle'] is Map) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _poller?.cancel();
+    _clock?.cancel();
     super.dispose();
   }
 
   Future<void> _load() async {
+    if (_busy) return;
+    _busy = true;
     try {
-      final devices = await _api.getDevices();
-      if (devices.isEmpty) {
-        if (!mounted) return;
-        setState(() {
-          _cycles = [];
-          _deviceName = null;
-          _error = null;
-          _loading = false;
-        });
-        return;
-      }
-      final cycles = <Map<String, dynamic>>[];
-      for (final device in devices) {
-        final id = device['id']?.toString();
-        if (id == null || id.isEmpty) continue;
-        final deviceCycles = await _api.getCycles(id);
-        cycles.addAll(deviceCycles.map((cycle) => {...cycle, '_deviceName': device['name']?.toString() ?? device['serialNumber']?.toString() ?? 'Secadora'}));
-      }
+      final data = await _api.getMockData();
       if (!mounted) return;
       setState(() {
-        _deviceName = devices.map((device) => device['name']?.toString() ?? device['serialNumber']?.toString() ?? 'Secadora').join(', ');
-        _cycles = cycles;
+        _snapshot = data;
         _error = null;
         _loading = false;
       });
-    } catch (e) {
+    } catch (error) {
       if (!mounted) return;
       setState(() {
-        _error = e.toString().replaceFirst('Exception: ', '');
+        _error = error.toString().replaceFirst('Exception: ', '');
         _loading = false;
       });
+    } finally {
+      _busy = false;
     }
   }
 
+  int _number(dynamic value) =>
+      value is num ? value.round() : int.tryParse('$value') ?? 0;
+
+  int _elapsedSeconds(Map<String, dynamic> cycle) {
+    final status = cycle['status']?.toString();
+    if (status == 'PAUSED' ||
+        status == 'COMPLETED' ||
+        status == 'CANCELLED' ||
+        status == 'ERROR') {
+      return _number(cycle['durationSeconds']);
+    }
+    final started = DateTime.tryParse(cycle['startTime']?.toString() ?? '');
+    if (started == null) return _number(cycle['durationSeconds']);
+    return DateTime.now().difference(started).inSeconds.clamp(0, 86400).toInt();
+  }
+
+  String _statusLabel(String status) => switch (status) {
+        'PREPARING' => 'Preparando',
+        'DRYING' => 'Secando',
+        'PAUSED' => 'Pausado',
+        'COMPLETED' => 'Concluído',
+        'CANCELLED' => 'Cancelado',
+        'ERROR' => 'Com falha',
+        _ => status,
+      };
+
+  Color _statusColor(String status) => switch (status) {
+        'DRYING' => const Color(0xFF16834A),
+        'PAUSED' => const Color(0xFFB66A00),
+        'COMPLETED' => const Color(0xFF2768C5),
+        'ERROR' || 'CANCELLED' => Colors.redAccent,
+        _ => orange,
+      };
+
+  Widget _metric(IconData icon, String label, String value) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          decoration: BoxDecoration(
+              color: const Color(0xFFF7F7F8),
+              borderRadius: BorderRadius.circular(14)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 17, color: orange),
+              const SizedBox(height: 7),
+              Text(value,
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w800, color: ink)),
+              Text(label, style: const TextStyle(fontSize: 10, color: muted)),
+            ],
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Panel(child: LinearProgressIndicator(color: orange));
-    if (_error != null) {
-      return Panel(child: Row(children: [
+    if (_loading && _snapshot == null)
+      return const Panel(child: LinearProgressIndicator(color: orange));
+    if (_snapshot == null) {
+      return Panel(
+          child: Row(children: [
         const Icon(Icons.cloud_off_outlined, color: muted),
         const SizedBox(width: 10),
-        Expanded(child: Text('Backend indisponível: $_error', style: const TextStyle(color: muted, fontSize: 12))),
-        IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded, color: orange)),
+        Expanded(
+            child: Text(_error ?? 'Não foi possível carregar a secagem.',
+                style: const TextStyle(color: muted, fontSize: 12))),
+        IconButton(
+            onPressed: _load,
+            icon: const Icon(Icons.refresh_rounded, color: orange)),
       ]));
     }
-    if (_deviceName == null) {
-      return const Panel(child: Text('Nenhuma secadora cadastrada no backend. Cadastre uma secadora para sincronizar ciclos.', style: TextStyle(color: muted, fontSize: 12)));
-    }
-    if (_cycles.isEmpty) {
-      return Panel(child: Row(children: [
-        const Icon(Icons.sync_rounded, color: orange),
+
+    final device = _snapshot!['device'] is Map
+        ? Map<String, dynamic>.from(_snapshot!['device'])
+        : <String, dynamic>{};
+    final rawCycle = _snapshot!['cycle'];
+    if (rawCycle is! Map) {
+      return Panel(
+          child: Row(children: [
+        const Icon(Icons.hourglass_empty_rounded, color: orange),
         const SizedBox(width: 10),
-        Expanded(child: Text('$_deviceName · aguardando ciclos do painel web.', style: const TextStyle(color: muted, fontSize: 12))),
-        IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded, color: orange)),
+        Expanded(
+            child: Text(
+                '${device['name'] ?? 'Secadora'} · aguardando um ciclo do painel.',
+                style: const TextStyle(color: muted, fontSize: 12))),
+        IconButton(
+            onPressed: _load,
+            icon: const Icon(Icons.refresh_rounded, color: orange)),
       ]));
     }
-    return Panel(padding: EdgeInsets.zero, child: Column(children: [
-      for (var i = 0; i < _cycles.length; i++) ...[
-        ListTile(
-          dense: true,
-          leading: const Icon(Icons.sync_rounded, color: orange),
-          title: Text(_cycles[i]['foodName']?.toString() ?? _cycles[i]['food']?.toString() ?? 'Ciclo', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-          subtitle: Text('${_cycles[i]['status'] ?? '—'} · ${_cycles[i]['_deviceName'] ?? _deviceName}', style: const TextStyle(fontSize: 11)),
-          trailing: Text('${_cycles[i]['targetTemperature'] ?? '—'} °C', style: const TextStyle(color: orange, fontWeight: FontWeight.w800)),
-        ),
-        if (i < _cycles.length - 1) const Divider(height: 1, indent: 16, endIndent: 16),
-      ],
-      Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded, size: 16), label: const Text('Atualizar'))),
-    ]));
+
+    final cycle = Map<String, dynamic>.from(rawCycle);
+    final status = cycle['status']?.toString() ?? 'PREPARING';
+    final color = _statusColor(status);
+    final total =
+        _number(cycle['plannedDurationSeconds'] ?? cycle['durationSeconds']);
+    final elapsed = _elapsedSeconds(cycle);
+    final progress =
+        total <= 0 ? 0.0 : (elapsed / total).clamp(0.0, 1.0).toDouble();
+    final remaining = (total - elapsed).clamp(0, 86400).toInt();
+return Panel(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(13)),
+                child: Icon(Icons.local_laundry_service_rounded, color: color)),
+            const SizedBox(width: 11),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(device['name']?.toString() ?? 'Secadora Laboratório',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          color: ink)),
+                  Text(cycle['foodName']?.toString() ?? 'Ciclo de secagem',
+                      style: const TextStyle(color: muted, fontSize: 12)),
+                ])),
+            Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(99)),
+                child: Text(_statusLabel(status).toUpperCase(),
+                    style: TextStyle(
+                        color: color,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800))),
+          ]),
+          const SizedBox(height: 18),
+          Row(children: [
+            const Text('Progresso da secagem',
+                style: TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w700, color: ink)),
+            const Spacer(),
+            Text('${(progress * 100).round()}%',
+                style: TextStyle(
+                    color: color, fontSize: 12, fontWeight: FontWeight.w800)),
+          ]),
+          const SizedBox(height: 8),
+          ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: LinearProgressIndicator(
+                  value: status == 'COMPLETED' ? 1 : progress,
+                  minHeight: 9,
+                  color: color,
+                  backgroundColor: const Color(0xFFEDEEF0))),
+          const SizedBox(height: 7),
+          Row(children: [
+            Text('Decorrido ${formatDurationLabel(elapsed)}',
+                style: const TextStyle(color: muted, fontSize: 10)),
+            const Spacer(),
+            Text(
+                status == 'COMPLETED'
+                    ? 'Concluído'
+                    : 'Restam ${formatDurationLabel(remaining)}',
+                style: const TextStyle(color: muted, fontSize: 10)),
+          ]),
+          const SizedBox(height: 14),
+          Row(children: [
+            _metric(Icons.thermostat_rounded, 'Temperatura alvo',
+                '${cycle['targetTemperature'] ?? cycle['maximumTemperature'] ?? '—'} °C'),
+            const SizedBox(width: 8),
+            _metric(Icons.monitor_weight_outlined, 'Peso inicial',
+                '${cycle['initialWeight'] ?? '—'} kg'),
+            const SizedBox(width: 8),
+            _metric(
+                Icons.timer_outlined, 'Duração', '${(total / 60).ceil()} min'),
+          ]),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: _load,
+              icon: const Icon(Icons.refresh_rounded, size: 16),
+              label: const Text('Atualizar agora'),
+            ),
+          ),          if (_error != null)
+            Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text('Última leitura: $_error',
+                    style: const TextStyle(color: muted, fontSize: 10))),
+        ],
+      ),
+    );
   }
 }
 
@@ -1330,7 +1554,10 @@ Widget _quick(BuildContext context, String title, IconData icon, Widget page) {
             children: [
               Icon(icon, color: orange, size: 28),
               const SizedBox(height: 8),
-              Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+              Text(title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w700)),
             ],
           ),
         ),
@@ -1346,14 +1573,16 @@ class DeviceInfoDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Conexão com a secadora'),
-      content: const Text('A secadora não está conectada ao aplicativo. A contagem de tempo funciona, mas a temperatura é apenas o ajuste escolhido e não representa uma leitura do equipamento.'),
+      content: const Text(
+          'A secadora não está conectada ao aplicativo. A contagem de tempo funciona, mas a temperatura é apenas o ajuste escolhido e não representa uma leitura do equipamento.'),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Entendi')),
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Entendi')),
       ],
     );
   }
 }
-
 
 class SelectFoodScreen extends StatefulWidget {
   final String? initialFood;
@@ -1382,8 +1611,10 @@ class _SelectFoodScreenState extends State<SelectFoodScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredFoods = foodCatalog.where((food) =>
-      food.join(' ').toLowerCase().contains(search.toLowerCase())).toList();
+    final filteredFoods = foodCatalog
+        .where((food) =>
+            food.join(' ').toLowerCase().contains(search.toLowerCase()))
+        .toList();
 
     return AppPage(
       title: 'Nova secagem',
@@ -1391,8 +1622,11 @@ class _SelectFoodScreenState extends State<SelectFoodScreen> {
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text('O que você quer desidratar?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 21, color: ink)),
-          const Text('Escolha um alimento para configurar o ciclo.', style: TextStyle(color: muted, fontSize: 13)),
+          const Text('O que você quer desidratar?',
+              style: TextStyle(
+                  fontWeight: FontWeight.w900, fontSize: 21, color: ink)),
+          const Text('Escolha um alimento para configurar o ciclo.',
+              style: TextStyle(color: muted, fontSize: 13)),
           gap(18),
           TextField(
             controller: searchController,
@@ -1400,54 +1634,71 @@ class _SelectFoodScreenState extends State<SelectFoodScreen> {
             decoration: InputDecoration(
               hintText: 'Buscar alimento',
               prefixIcon: const Icon(Icons.search),
-              suffixIcon: search.isEmpty ? null : IconButton(
-                tooltip: 'Limpar busca',
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  searchController.clear();
-                  setState(() => search = '');
-                },
-              ),
+              suffixIcon: search.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: 'Limpar busca',
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        searchController.clear();
+                        setState(() => search = '');
+                      },
+                    ),
             ),
           ),
           section('Alimentos'),
           if (filteredFoods.isEmpty)
-            const Panel(child: Text('Nenhum alimento encontrado. Tente outra busca.', style: TextStyle(color: muted))),
+            const Panel(
+                child: Text('Nenhum alimento encontrado. Tente outra busca.',
+                    style: TextStyle(color: muted))),
           ...filteredFoods.map((food) {
             final isSaved = savedFoodNames.contains(food[1]);
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Panel(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 child: Row(
                   children: [
                     InkWell(
                       borderRadius: BorderRadius.circular(14),
-                      onTap: () => go(context, ConfigureDryingScreen(food: food[1], emoji: food[0])),
+                      onTap: () => go(context,
+                          ConfigureDryingScreen(food: food[1], emoji: food[0])),
                       child: Container(
                         width: 52,
                         height: 52,
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(color: const Color(0xFFFFF0E8), borderRadius: BorderRadius.circular(15)),
-                        child: Text(food[0], style: const TextStyle(fontSize: 29)),
+                        decoration: BoxDecoration(
+                            color: const Color(0xFFFFF0E8),
+                            borderRadius: BorderRadius.circular(15)),
+                        child:
+                            Text(food[0], style: const TextStyle(fontSize: 29)),
                       ),
                     ),
                     const SizedBox(width: 13),
                     Expanded(
                       child: InkWell(
-                        onTap: () => go(context, ConfigureDryingScreen(food: food[1], emoji: food[0])),
+                        onTap: () => go(
+                            context,
+                            ConfigureDryingScreen(
+                                food: food[1], emoji: food[0])),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(food[1], style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                            Text(food[1],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w800, fontSize: 14)),
                             const SizedBox(height: 4),
-                            Text('${food[2]} • ${food[3]} °C sugeridos', style: const TextStyle(color: muted, fontSize: 11)),
+                            Text('${food[2]} • ${food[3]} °C sugeridos',
+                                style: const TextStyle(
+                                    color: muted, fontSize: 11)),
                           ],
                         ),
                       ),
                     ),
                     IconButton(
-                      tooltip: isSaved ? 'Remover dos salvos' : 'Salvar alimento',
+                      tooltip:
+                          isSaved ? 'Remover dos salvos' : 'Salvar alimento',
                       onPressed: () {
                         setState(() {
                           if (isSaved) {
@@ -1456,14 +1707,24 @@ class _SelectFoodScreenState extends State<SelectFoodScreen> {
                             savedFoodNames.add(food[1]);
                           }
                         });
-                        showMessage(context, isSaved ? 'Alimento removido dos salvos.' : 'Alimento salvo.');
+                        showMessage(
+                            context,
+                            isSaved
+                                ? 'Alimento removido dos salvos.'
+                                : 'Alimento salvo.');
                       },
-                      icon: Icon(isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, color: orange),
+                      icon: Icon(
+                          isSaved
+                              ? Icons.bookmark_rounded
+                              : Icons.bookmark_border_rounded,
+                          color: orange),
                     ),
                     IconButton(
                       tooltip: 'Configurar alimento',
-                      onPressed: () => go(context, ConfigureDryingScreen(food: food[1], emoji: food[0])),
-                      icon: const Icon(Icons.chevron_right_rounded, color: muted),
+                      onPressed: () => go(context,
+                          ConfigureDryingScreen(food: food[1], emoji: food[0])),
+                      icon:
+                          const Icon(Icons.chevron_right_rounded, color: muted),
                     ),
                   ],
                 ),
@@ -1475,7 +1736,6 @@ class _SelectFoodScreenState extends State<SelectFoodScreen> {
     );
   }
 }
-
 
 class ConfigureDryingScreen extends StatefulWidget {
   final String food;
@@ -1525,7 +1785,11 @@ class _ConfigureDryingScreenState extends State<ConfigureDryingScreen> {
         children: [
           const Text(
             'Prepare seu ciclo',
-            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900, color: ink, letterSpacing: -0.5),
+            style: TextStyle(
+                fontSize: 23,
+                fontWeight: FontWeight.w900,
+                color: ink,
+                letterSpacing: -0.5),
           ),
           const SizedBox(height: 5),
           const Text(
@@ -1544,19 +1808,23 @@ class _ConfigureDryingScreenState extends State<ConfigureDryingScreen> {
                     borderRadius: BorderRadius.circular(17),
                   ),
                   alignment: Alignment.center,
-                  child: Text(widget.emoji, style: const TextStyle(fontSize: 32)),
+                  child:
+                      Text(widget.emoji, style: const TextStyle(fontSize: 32)),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.food, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                      Text(widget.food,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 4),
-                      const Text('Alimento selecionado', style: TextStyle(color: muted, fontSize: 12)),
+                      const Text('Alimento selecionado',
+                          style: TextStyle(color: muted, fontSize: 12)),
                     ],
                   ),
-                  ),
+                ),
                 const Icon(Icons.check_circle_rounded, color: Colors.green),
               ],
             ),
@@ -1569,8 +1837,13 @@ class _ConfigureDryingScreenState extends State<ConfigureDryingScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Ajuste de temperatura', style: TextStyle(color: muted, fontSize: 12)),
-                    Text('${temp.round()} °C', style: const TextStyle(color: orange, fontSize: 20, fontWeight: FontWeight.w900)),
+                    const Text('Ajuste de temperatura',
+                        style: TextStyle(color: muted, fontSize: 12)),
+                    Text('${temp.round()} °C',
+                        style: const TextStyle(
+                            color: orange,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900)),
                   ],
                 ),
                 Slider(
@@ -1600,8 +1873,13 @@ class _ConfigureDryingScreenState extends State<ConfigureDryingScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Duração programada', style: TextStyle(color: muted, fontSize: 12)),
-                    Text(formatHoursValue(hours), style: const TextStyle(color: orange, fontSize: 20, fontWeight: FontWeight.w900)),
+                    const Text('Duração programada',
+                        style: TextStyle(color: muted, fontSize: 12)),
+                    Text(formatHoursValue(hours),
+                        style: const TextStyle(
+                            color: orange,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900)),
                   ],
                 ),
                 Slider(
@@ -1616,7 +1894,8 @@ class _ConfigureDryingScreenState extends State<ConfigureDryingScreen> {
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('15 min', style: TextStyle(color: muted, fontSize: 11)),
+                    Text('15 min',
+                        style: TextStyle(color: muted, fontSize: 11)),
                     Text('24 h', style: TextStyle(color: muted, fontSize: 11)),
                   ],
                 ),
@@ -1639,7 +1918,8 @@ class _ConfigureDryingScreenState extends State<ConfigureDryingScreen> {
             onPressed: () {
               final currentSession = activeDryingSession;
               if (currentSession != null && !currentSession.isFinished) {
-                showMessage(context, 'Já existe um ciclo ativo. Retome ou cancele esse ciclo antes de iniciar outro.');
+                showMessage(context,
+                    'Já existe um ciclo ativo. Retome ou cancele esse ciclo antes de iniciar outro.');
                 return;
               }
               final session = DryingSession(
@@ -1651,7 +1931,9 @@ class _ConfigureDryingScreenState extends State<ConfigureDryingScreen> {
               );
               activeDryingSession = session;
               dryingSessions.insert(0, session);
-              addAppNotification('Ciclo iniciado', '${widget.food} • ${formatDurationLabel(duration.inSeconds)}', session: session);
+              addAppNotification('Ciclo iniciado',
+                  '${widget.food} • ${formatDurationLabel(duration.inSeconds)}',
+                  session: session);
               go(context, DryingScreen(session: session));
             },
           ),
@@ -1701,7 +1983,8 @@ class DryingScreen extends StatelessWidget {
               Text(
                 '${session.emoji}  ${session.food}',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: ink),
+                style: const TextStyle(
+                    fontSize: 17, fontWeight: FontWeight.w800, color: ink),
               ),
               gap(16),
               Panel(
@@ -1709,8 +1992,14 @@ class DryingScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      session.isCompleted ? 'TEMPO FINALIZADO' : 'TEMPO RESTANTE',
-                      style: const TextStyle(color: muted, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2),
+                      session.isCompleted
+                          ? 'TEMPO FINALIZADO'
+                          : 'TEMPO RESTANTE',
+                      style: const TextStyle(
+                          color: muted,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.2),
                     ),
                     const SizedBox(height: 18),
                     SizedBox(
@@ -1724,14 +2013,17 @@ class DryingScreen extends StatelessWidget {
                               value: session.progress,
                               strokeWidth: 11,
                               backgroundColor: const Color(0xFFFFE9DF),
-                              valueColor: AlwaysStoppedAnimation<Color>(timerColor),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(timerColor),
                             ),
                           ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                session.isCompleted ? '00:00:00' : formatClock(session.remainingSeconds),
+                                session.isCompleted
+                                    ? '00:00:00'
+                                    : formatClock(session.remainingSeconds),
                                 style: TextStyle(
                                   color: timerColor,
                                   fontSize: 34,
@@ -1741,7 +2033,9 @@ class DryingScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 7),
-                              Text(status, style: const TextStyle(color: muted, fontSize: 12)),
+                              Text(status,
+                                  style: const TextStyle(
+                                      color: muted, fontSize: 12)),
                             ],
                           ),
                         ],
@@ -1755,7 +2049,8 @@ class DryingScreen extends StatelessWidget {
                               ? 'A contagem está pausada.'
                               : 'A contagem está acontecendo em tempo real.',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: muted, fontSize: 12, height: 1.4),
+                      style: const TextStyle(
+                          color: muted, fontSize: 12, height: 1.4),
                     ),
                   ],
                 ),
@@ -1776,7 +2071,11 @@ class DryingScreen extends StatelessWidget {
               InfoRow(
                 'Estado do cronômetro',
                 status,
-                trailing: session.isCompleted ? 'Finalizado' : session.isPaused ? 'Pausado' : 'Ativo',
+                trailing: session.isCompleted
+                    ? 'Finalizado'
+                    : session.isPaused
+                        ? 'Pausado'
+                        : 'Ativo',
                 trailingColor: session.isCompleted ? Colors.green : orange,
               ),
               gap(14),
@@ -1789,7 +2088,9 @@ class DryingScreen extends StatelessWidget {
               if (!session.isCompleted && !session.isCancelled)
                 PrimaryButton(
                   session.isPaused ? 'Retomar contagem' : 'Pausar contagem',
-                  icon: session.isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                  icon: session.isPaused
+                      ? Icons.play_arrow_rounded
+                      : Icons.pause_rounded,
                   onPressed: session.isPaused ? session.resume : session.pause,
                 )
               else
@@ -1806,7 +2107,8 @@ class DryingScreen extends StatelessWidget {
                       context: context,
                       builder: (dialogContext) => AlertDialog(
                         title: const Text('Encerrar este ciclo?'),
-                        content: const Text('A contagem será interrompida e não poderá ser retomada.'),
+                        content: const Text(
+                            'A contagem será interrompida e não poderá ser retomada.'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(dialogContext),
@@ -1821,13 +2123,16 @@ class DryingScreen extends StatelessWidget {
                               }
                               Navigator.pop(context);
                             },
-                            child: const Text('Encerrar', style: TextStyle(color: Colors.red)),
+                            child: const Text('Encerrar',
+                                style: TextStyle(color: Colors.red)),
                           ),
                         ],
                       ),
                     );
                   },
-                  child: const Text('Encerrar ciclo', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700)),
+                  child: const Text('Encerrar ciclo',
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.w700)),
                 ),
               ],
             ],
@@ -1853,10 +2158,13 @@ class NotificationsScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Expanded(child: Text('Acompanhe as atualizações dos seus ciclos.', style: TextStyle(color: muted, fontSize: 13))),
+                  const Expanded(
+                      child: Text('Acompanhe as atualizações dos seus ciclos.',
+                          style: TextStyle(color: muted, fontSize: 13))),
                   if (appNotifications.isNotEmpty)
                     TextButton(
-                      onPressed: () => setLocalState(() => appNotifications.clear()),
+                      onPressed: () =>
+                          setLocalState(() => appNotifications.clear()),
                       child: const Text('Limpar'),
                     ),
                 ],
@@ -1866,28 +2174,32 @@ class NotificationsScreen extends StatelessWidget {
                 const Panel(
                   child: Row(
                     children: [
-                      Icon(Icons.notifications_none_rounded, color: muted, size: 25),
+                      Icon(Icons.notifications_none_rounded,
+                          color: muted, size: 25),
                       SizedBox(width: 12),
-                      Expanded(child: Text('Você não tem notificações.', style: TextStyle(color: muted, fontSize: 13))),
+                      Expanded(
+                          child: Text('Você não tem notificações.',
+                              style: TextStyle(color: muted, fontSize: 13))),
                     ],
                   ),
                 )
               else
                 ...appNotifications.map((notification) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: InfoRow(
-                    notification.title,
-                    '${notification.message} • ${formatDateTime(notification.createdAt)}',
-                    trailing: notification.isRead ? 'Lida' : 'Nova',
-                    trailingColor: notification.isRead ? muted : orange,
-                    onTap: () {
-                      setLocalState(() => notification.isRead = true);
-                      if (notification.session != null) {
-                        go(context, DryingScreen(session: notification.session!));
-                      }
-                    },
-                  ),
-                )),
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: InfoRow(
+                        notification.title,
+                        '${notification.message} • ${formatDateTime(notification.createdAt)}',
+                        trailing: notification.isRead ? 'Lida' : 'Nova',
+                        trailingColor: notification.isRead ? muted : orange,
+                        onTap: () {
+                          setLocalState(() => notification.isRead = true);
+                          if (notification.session != null) {
+                            go(context,
+                                DryingScreen(session: notification.session!));
+                          }
+                        },
+                      ),
+                    )),
             ],
           );
         },
@@ -1895,7 +2207,6 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 }
-
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -1908,21 +2219,35 @@ class HistoryScreen extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text('Todos os ciclos registrados neste aplicativo.', style: TextStyle(color: muted, fontSize: 13)),
+          const Text('Todos os ciclos registrados neste aplicativo.',
+              style: TextStyle(color: muted, fontSize: 13)),
           section('Ciclos'),
           if (dryingSessions.isEmpty)
-            const Panel(child: Text('Seus ciclos aparecerão aqui depois que você iniciar uma secagem.', style: TextStyle(color: muted, fontSize: 13)))
+            const Panel(
+                child: Text(
+                    'Seus ciclos aparecerão aqui depois que você iniciar uma secagem.',
+                    style: TextStyle(color: muted, fontSize: 13)))
           else
             ...dryingSessions.map((session) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: InfoRow(
-                '${session.emoji}  ${session.food}',
-                '${formatDateTime(session.startedAt)} • ${formatDurationLabel(session.totalSeconds)} • ${session.temperature.round()} °C',
-                trailing: session.isCompleted ? 'Concluído' : session.isCancelled ? 'Encerrado' : session.isPaused ? 'Pausado' : 'Ativo',
-                trailingColor: session.isCompleted ? Colors.green : orange,
-                onTap: () => go(context, session.isFinished ? DetailsScreen(session: session) : DryingScreen(session: session)),
-              ),
-            )),
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: InfoRow(
+                    '${session.emoji}  ${session.food}',
+                    '${formatDateTime(session.startedAt)} • ${formatDurationLabel(session.totalSeconds)} • ${session.temperature.round()} °C',
+                    trailing: session.isCompleted
+                        ? 'Concluído'
+                        : session.isCancelled
+                            ? 'Encerrado'
+                            : session.isPaused
+                                ? 'Pausado'
+                                : 'Ativo',
+                    trailingColor: session.isCompleted ? Colors.green : orange,
+                    onTap: () => go(
+                        context,
+                        session.isFinished
+                            ? DetailsScreen(session: session)
+                            : DryingScreen(session: session)),
+                  ),
+                )),
         ],
       ),
     );
@@ -1936,7 +2261,13 @@ class DetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final status = session.isCompleted ? 'Concluído' : session.isCancelled ? 'Encerrado' : session.isPaused ? 'Pausado' : 'Em andamento';
+    final status = session.isCompleted
+        ? 'Concluído'
+        : session.isCancelled
+            ? 'Encerrado'
+            : session.isPaused
+                ? 'Pausado'
+                : 'Em andamento';
     return AppPage(
       title: 'Detalhes do ciclo',
       selected: 1,
@@ -1948,16 +2279,23 @@ class DetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${session.emoji}  ${session.food}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                Text('${session.emoji}  ${session.food}',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 6),
-                Text('$status • ${formatDateTime(session.startedAt)}', style: TextStyle(color: session.isCompleted ? Colors.green : orange, fontSize: 12, fontWeight: FontWeight.w700)),
+                Text('$status • ${formatDateTime(session.startedAt)}',
+                    style: TextStyle(
+                        color: session.isCompleted ? Colors.green : orange,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700)),
               ],
             ),
           ),
           section('Resumo'),
           InfoRow('Temperatura ajustada', '${session.temperature.round()} °C'),
           gap(8),
-          InfoRow('Tempo programado', formatDurationLabel(session.totalSeconds)),
+          InfoRow(
+              'Tempo programado', formatDurationLabel(session.totalSeconds)),
           gap(8),
           InfoRow('Responsável', signedInName),
           if (session.note.isNotEmpty) ...[
@@ -1966,16 +2304,18 @@ class DetailsScreen extends StatelessWidget {
           ],
           if (!session.isFinished) ...[
             gap(16),
-            PrimaryButton('Acompanhar contagem', onPressed: () => go(context, DryingScreen(session: session))),
+            PrimaryButton('Acompanhar contagem',
+                onPressed: () => go(context, DryingScreen(session: session))),
           ],
           gap(20),
-          PrimaryButton('Repetir configuração', onPressed: () => go(context, SelectFoodScreen(initialFood: session.food))),
+          PrimaryButton('Repetir configuração',
+              onPressed: () =>
+                  go(context, SelectFoodScreen(initialFood: session.food))),
         ],
       ),
     );
   }
 }
-
 
 class SavedFoodsScreen extends StatelessWidget {
   const SavedFoodsScreen({super.key});
@@ -1987,50 +2327,68 @@ class SavedFoodsScreen extends StatelessWidget {
       selected: 1,
       child: StatefulBuilder(
         builder: (context, setLocalState) {
-          final saved = foodCatalog.where((food) => savedFoodNames.contains(food[1])).toList();
+          final saved = foodCatalog
+              .where((food) => savedFoodNames.contains(food[1]))
+              .toList();
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              const Text('Acesse rapidamente os alimentos que você salvou.', style: TextStyle(color: muted, fontSize: 13)),
+              const Text('Acesse rapidamente os alimentos que você salvou.',
+                  style: TextStyle(color: muted, fontSize: 13)),
               section('Minha lista'),
               if (saved.isEmpty)
-                const Panel(child: Text('Sua lista está vazia. Salve alimentos na tela Secar para encontrá-los aqui.', style: TextStyle(color: muted, fontSize: 13)))
+                const Panel(
+                    child: Text(
+                        'Sua lista está vazia. Salve alimentos na tela Secar para encontrá-los aqui.',
+                        style: TextStyle(color: muted, fontSize: 13)))
               else
                 ...saved.map((food) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Panel(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    child: Row(
-                      children: [
-                        Text(food[0], style: const TextStyle(fontSize: 29)),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () => go(context, ConfigureDryingScreen(food: food[1], emoji: food[0])),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(food[1], style: const TextStyle(fontWeight: FontWeight.w800)),
-                                Text('${food[2]} • ${food[3]} °C • ${food[4]} h', style: const TextStyle(color: muted, fontSize: 11)),
-                              ],
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Panel(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
+                        child: Row(
+                          children: [
+                            Text(food[0], style: const TextStyle(fontSize: 29)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () => go(
+                                    context,
+                                    ConfigureDryingScreen(
+                                        food: food[1], emoji: food[0])),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(food[1],
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w800)),
+                                    Text(
+                                        '${food[2]} • ${food[3]} °C • ${food[4]} h',
+                                        style: const TextStyle(
+                                            color: muted, fontSize: 11)),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
+                            IconButton(
+                              tooltip: 'Remover dos salvos',
+                              onPressed: () {
+                                savedFoodNames.remove(food[1]);
+                                setLocalState(() {});
+                                showMessage(
+                                    context, 'Alimento removido dos salvos.');
+                              },
+                              icon: const Icon(Icons.bookmark_remove_outlined,
+                                  color: orange),
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          tooltip: 'Remover dos salvos',
-                          onPressed: () {
-                            savedFoodNames.remove(food[1]);
-                            setLocalState(() {});
-                            showMessage(context, 'Alimento removido dos salvos.');
-                          },
-                          icon: const Icon(Icons.bookmark_remove_outlined, color: orange),
-                        ),
-                      ],
-                    ),
-                  ),
-                )),
+                      ),
+                    )),
               gap(10),
-              PrimaryButton('Adicionar alimento', onPressed: () => go(context, const SelectFoodScreen())),
+              PrimaryButton('Adicionar alimento',
+                  onPressed: () => go(context, const SelectFoodScreen())),
             ],
           );
         },
@@ -2038,7 +2396,6 @@ class SavedFoodsScreen extends StatelessWidget {
     );
   }
 }
-
 
 class AddFriendScreen extends StatefulWidget {
   const AddFriendScreen({super.key});
@@ -2058,7 +2415,8 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inviteCode = 'DRYTECH-${(activeAccount?.username ?? 'USUARIO').toUpperCase()}';
+    final inviteCode =
+        'DRYTECH-${(activeAccount?.username ?? 'USUARIO').toUpperCase()}';
     return AppPage(
       title: 'Adicionar amigo',
       selected: 4,
@@ -2066,21 +2424,29 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text('Compartilhe o acesso e encontre pessoas cadastradas.', style: TextStyle(color: muted, fontSize: 13)),
+          const Text('Compartilhe o acesso e encontre pessoas cadastradas.',
+              style: TextStyle(color: muted, fontSize: 13)),
           section('Seu código de convite'),
           Panel(
             child: Column(
               children: [
                 const Icon(Icons.group_add_rounded, color: orange, size: 42),
                 const SizedBox(height: 12),
-                SelectableText(inviteCode, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+                SelectableText(inviteCode,
+                    style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2)),
                 const SizedBox(height: 8),
-                const Text('Compartilhe este código com quem deseja adicionar.', textAlign: TextAlign.center, style: TextStyle(color: muted, fontSize: 12)),
+                const Text('Compartilhe este código com quem deseja adicionar.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: muted, fontSize: 12)),
                 const SizedBox(height: 14),
                 OutlinedButton.icon(
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: inviteCode));
-                    if (context.mounted) showMessage(context, 'Código copiado.');
+                    if (context.mounted)
+                      showMessage(context, 'Código copiado.');
                   },
                   icon: const Icon(Icons.copy_rounded),
                   label: const Text('Copiar código'),
@@ -2091,20 +2457,27 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
           section('Buscar pessoa'),
           TextField(
             controller: handle,
-            decoration: const InputDecoration(hintText: '@usuário ou código de convite', prefixIcon: Icon(Icons.search)),
+            decoration: const InputDecoration(
+                hintText: '@usuário ou código de convite',
+                prefixIcon: Icon(Icons.search)),
             textInputAction: TextInputAction.search,
             onSubmitted: (_) => _searchPerson(context),
           ),
           gap(12),
-          PrimaryButton('Buscar pessoa', icon: Icons.person_search_rounded, onPressed: () => _searchPerson(context)),
+          PrimaryButton('Buscar pessoa',
+              icon: Icons.person_search_rounded,
+              onPressed: () => _searchPerson(context)),
           section('Pessoas adicionadas'),
           if (collaborators.isEmpty)
-            const Panel(child: Text('Ninguém foi adicionado ainda.', style: TextStyle(color: muted, fontSize: 13)))
+            const Panel(
+                child: Text('Ninguém foi adicionado ainda.',
+                    style: TextStyle(color: muted, fontSize: 13)))
           else
             ...collaborators.map((person) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: InfoRow(person.name, '@${person.username}', trailing: 'Adicionado'),
-            )),
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: InfoRow(person.name, '@${person.username}',
+                      trailing: 'Adicionado'),
+                )),
         ],
       ),
     );
@@ -2112,18 +2485,23 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
 
   void _searchPerson(BuildContext context) {
     final rawInput = handle.text.trim();
-    final username = rawInput.replaceFirst(RegExp(r'^DRYTECH-', caseSensitive: false), '').replaceFirst(RegExp(r'^@'), '').toLowerCase();
+    final username = rawInput
+        .replaceFirst(RegExp(r'^DRYTECH-', caseSensitive: false), '')
+        .replaceFirst(RegExp(r'^@'), '')
+        .toLowerCase();
     if (username.isEmpty) {
       showMessage(context, 'Digite um nome de usuário.');
       return;
     }
-    final index = _accounts.indexWhere((account) => account.username.toLowerCase() == username);
+    final index = _accounts
+        .indexWhere((account) => account.username.toLowerCase() == username);
     if (index < 0) {
       showMessage(context, 'Nenhuma conta encontrada com esse usuário.');
       return;
     }
     final person = _accounts[index];
-    if (identical(person, activeAccount) || person.username == activeAccount?.username) {
+    if (identical(person, activeAccount) ||
+        person.username == activeAccount?.username) {
       showMessage(context, 'Esse é o seu próprio usuário.');
       return;
     }
@@ -2151,48 +2529,71 @@ class CollaboratorsScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              const Text('Gerencie quem tem acesso compartilhado.', style: TextStyle(color: muted, fontSize: 13)),
+              const Text('Gerencie quem tem acesso compartilhado.',
+                  style: TextStyle(color: muted, fontSize: 13)),
               section('Proprietário'),
               InfoRow(signedInName, signedInHandle, trailing: 'Você'),
               section('Pessoas com acesso'),
               if (collaborators.isEmpty)
-                const Panel(child: Text('Você ainda não adicionou colaboradores.', style: TextStyle(color: muted, fontSize: 13)))
+                const Panel(
+                    child: Text('Você ainda não adicionou colaboradores.',
+                        style: TextStyle(color: muted, fontSize: 13)))
               else
                 ...collaborators.map((person) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Panel(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(
-                      children: [
-                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(person.name, style: const TextStyle(fontWeight: FontWeight.w800)),
-                          Text('@${person.username}', style: const TextStyle(color: muted, fontSize: 11)),
-                        ])),
-                        IconButton(
-                          tooltip: 'Remover colaborador',
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (dialogContext) => AlertDialog(
-                              title: const Text('Remover colaborador?'),
-                              content: Text('Remover ${person.name} da sua lista?'),
-                              actions: [
-                                TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Voltar')),
-                                TextButton(onPressed: () {
-                                  collaborators.remove(person);
-                                  Navigator.pop(dialogContext);
-                                  setLocalState(() {});
-                                }, child: const Text('Remover', style: TextStyle(color: Colors.red))),
-                              ],
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Panel(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                  Text(person.name,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w800)),
+                                  Text('@${person.username}',
+                                      style: const TextStyle(
+                                          color: muted, fontSize: 11)),
+                                ])),
+                            IconButton(
+                              tooltip: 'Remover colaborador',
+                              onPressed: () => showDialog(
+                                context: context,
+                                builder: (dialogContext) => AlertDialog(
+                                  title: const Text('Remover colaborador?'),
+                                  content: Text(
+                                      'Remover ${person.name} da sua lista?'),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(dialogContext),
+                                        child: const Text('Voltar')),
+                                    TextButton(
+                                        onPressed: () {
+                                          collaborators.remove(person);
+                                          Navigator.pop(dialogContext);
+                                          setLocalState(() {});
+                                        },
+                                        child: const Text('Remover',
+                                            style:
+                                                TextStyle(color: Colors.red))),
+                                  ],
+                                ),
+                              ),
+                              icon: const Icon(
+                                  Icons.person_remove_alt_1_rounded,
+                                  color: Colors.red),
                             ),
-                          ),
-                          icon: const Icon(Icons.person_remove_alt_1_rounded, color: Colors.red),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                )),
+                      ),
+                    )),
               gap(12),
-              PrimaryButton('Adicionar amigo', onPressed: () => go(context, const AddFriendScreen())),
+              PrimaryButton('Adicionar amigo',
+                  onPressed: () => go(context, const AddFriendScreen())),
             ],
           );
         },
@@ -2200,7 +2601,6 @@ class CollaboratorsScreen extends StatelessWidget {
     );
   }
 }
-
 
 class SettingsOption {
   final String title;
@@ -2217,12 +2617,38 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = <SettingsOption>[
-      SettingsOption('Sua conta', 'Nome, usuário e e-mail', Icons.person_outline_rounded, () => _showAccount(context)),
-      SettingsOption('Notificações', appNotificationsEnabled ? 'Ativadas' : 'Desativadas', Icons.notifications_none_rounded, () => _showNotificationSettings(context)),
-      SettingsOption('Segurança', 'Redefinir senha', Icons.lock_outline_rounded, () => showDialog(context: context, builder: (_) => const PasswordRecoveryDialog())),
-      SettingsOption('Privacidade', 'Informações sobre seus dados', Icons.privacy_tip_outlined, () => _showInfo(context, 'Privacidade', 'As informações desta sessão são usadas para personalizar sua experiência. A conta local não é compartilhada automaticamente com outras pessoas.')),
-      SettingsOption('Aparelho DryTech', 'Status da conexão', Icons.sensors_outlined, () => showDialog(context: context, builder: (_) => const DeviceInfoDialog())),
-      SettingsOption('Ajuda', 'Como usar o aplicativo', Icons.help_outline_rounded, () => _showInfo(context, 'Ajuda', 'Para começar, selecione Secar, escolha um alimento, ajuste temperatura e duração e inicie a contagem. Você pode pausar, retomar ou encerrar o ciclo na tela de acompanhamento.')),
+      SettingsOption('Sua conta', 'Nome, usuário e e-mail',
+          Icons.person_outline_rounded, () => _showAccount(context)),
+      SettingsOption(
+          'Notificações',
+          appNotificationsEnabled ? 'Ativadas' : 'Desativadas',
+          Icons.notifications_none_rounded,
+          () => _showNotificationSettings(context)),
+      SettingsOption(
+          'Segurança',
+          'Redefinir senha',
+          Icons.lock_outline_rounded,
+          () => showDialog(
+              context: context,
+              builder: (_) => const PasswordRecoveryDialog())),
+      SettingsOption(
+          'Privacidade',
+          'Informações sobre seus dados',
+          Icons.privacy_tip_outlined,
+          () => _showInfo(context, 'Privacidade',
+              'As informações desta sessão são usadas para personalizar sua experiência. A conta local não é compartilhada automaticamente com outras pessoas.')),
+      SettingsOption(
+          'Aparelho DryTech',
+          'Status da conexão',
+          Icons.sensors_outlined,
+          () => showDialog(
+              context: context, builder: (_) => const DeviceInfoDialog())),
+      SettingsOption(
+          'Ajuda',
+          'Como usar o aplicativo',
+          Icons.help_outline_rounded,
+          () => _showInfo(context, 'Ajuda',
+              'Para começar, selecione Secar, escolha um alimento, ajuste temperatura e duração e inicie a contagem. Você pode pausar, retomar ou encerrar o ciclo na tela de acompanhamento.')),
     ];
 
     return AppPage(
@@ -2232,21 +2658,32 @@ class SettingsScreen extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text('Personalize sua experiência no DryTech.', style: TextStyle(color: muted, fontSize: 13)),
+          const Text('Personalize sua experiência no DryTech.',
+              style: TextStyle(color: muted, fontSize: 13)),
           section('Preferências'),
           ...settings.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Panel(
-              padding: EdgeInsets.zero,
-              child: ListTile(
-                onTap: item.action,
-                leading: Container(width: 40, height: 40, decoration: BoxDecoration(color: const Color(0xFFFFF0E8), borderRadius: BorderRadius.circular(12)), child: Icon(item.icon, color: orange)),
-                title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                subtitle: Text(item.subtitle, style: const TextStyle(fontSize: 11, color: muted)),
-                trailing: const Icon(Icons.chevron_right_rounded, color: muted),
-              ),
-            ),
-          )),
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Panel(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    onTap: item.action,
+                    leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                            color: const Color(0xFFFFF0E8),
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Icon(item.icon, color: orange)),
+                    title: Text(item.title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 13)),
+                    subtitle: Text(item.subtitle,
+                        style: const TextStyle(fontSize: 11, color: muted)),
+                    trailing:
+                        const Icon(Icons.chevron_right_rounded, color: muted),
+                  ),
+                ),
+              )),
           gap(10),
           TextButton.icon(
             onPressed: () {
@@ -2254,7 +2691,8 @@ class SettingsScreen extends StatelessWidget {
               replace(context, const LoginScreen());
             },
             icon: const Icon(Icons.logout_rounded, color: Colors.red),
-            label: const Text('Sair da conta', style: TextStyle(color: Colors.red)),
+            label: const Text('Sair da conta',
+                style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -2262,38 +2700,57 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showAccount(BuildContext context) {
-    showDialog(context: context, builder: (_) => AlertDialog(
-      title: const Text('Sua conta'),
-      content: Text('Nome: ${activeAccount?.name ?? signedInName}\nUsuário: $signedInHandle\nE-mail: ${activeAccount?.email ?? 'Não informado'}'),
-      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fechar'))],
-    ));
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text('Sua conta'),
+              content: Text(
+                  'Nome: ${activeAccount?.name ?? signedInName}\nUsuário: $signedInHandle\nE-mail: ${activeAccount?.email ?? 'Não informado'}'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Fechar'))
+              ],
+            ));
   }
 
   void _showNotificationSettings(BuildContext context) {
-    showDialog(context: context, builder: (dialogContext) => StatefulBuilder(
-      builder: (dialogContext, setDialogState) => AlertDialog(
-        title: const Text('Notificações'),
-        content: SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: const Text('Receber avisos'),
-          value: appNotificationsEnabled,
-          activeColor: orange,
-          onChanged: (value) {
-            appNotificationsEnabled = value;
-            setDialogState(() {});
-          },
-        ),
-        actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Concluir'))],
-      ),
-    ));
+    showDialog(
+        context: context,
+        builder: (dialogContext) => StatefulBuilder(
+              builder: (dialogContext, setDialogState) => AlertDialog(
+                title: const Text('Notificações'),
+                content: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Receber avisos'),
+                  value: appNotificationsEnabled,
+                  activeColor: orange,
+                  onChanged: (value) {
+                    appNotificationsEnabled = value;
+                    setDialogState(() {});
+                  },
+                ),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('Concluir'))
+                ],
+              ),
+            ));
   }
 
   void _showInfo(BuildContext context, String title, String message) {
-    showDialog(context: context, builder: (_) => AlertDialog(
-      title: Text(title),
-      content: Text(message),
-      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Entendi'))],
-    ));
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: Text(title),
+              content: Text(message),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Entendi'))
+              ],
+            ));
   }
 }
 
@@ -2302,20 +2759,30 @@ class StatisticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final completed = dryingSessions.where((session) => session.isCompleted).toList();
+    final completed =
+        dryingSessions.where((session) => session.isCompleted).toList();
     final uniqueFoods = completed.map((session) => session.food).toSet().length;
-    final durations = completed.fold<int>(0, (sum, session) => sum + session.totalSeconds);
+    final durations =
+        completed.fold<int>(0, (sum, session) => sum + session.totalSeconds);
     final now = DateTime.now();
     final dayCounts = List<int>.generate(7, (index) {
-      final day = DateTime(now.year, now.month, now.day).subtract(Duration(days: 6 - index));
-      return completed.where((session) => session.startedAt.year == day.year && session.startedAt.month == day.month && session.startedAt.day == day.day).length;
+      final day = DateTime(now.year, now.month, now.day)
+          .subtract(Duration(days: 6 - index));
+      return completed
+          .where((session) =>
+              session.startedAt.year == day.year &&
+              session.startedAt.month == day.month &&
+              session.startedAt.day == day.day)
+          .length;
     });
-    final maxCount = dayCounts.fold<int>(1, (maxValue, value) => value > maxValue ? value : maxValue);
+    final maxCount = dayCounts.fold<int>(
+        1, (maxValue, value) => value > maxValue ? value : maxValue);
     final foodCounts = <String, int>{};
     for (final session in completed) {
       foodCounts[session.food] = (foodCounts[session.food] ?? 0) + 1;
     }
-    final rankedFoods = foodCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final rankedFoods = foodCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
 
     return AppPage(
       title: 'Estatísticas',
@@ -2349,14 +2816,25 @@ class StatisticsScreen extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text('${dayCounts[i]}', style: const TextStyle(fontSize: 10, color: muted)),
+                            Text('${dayCounts[i]}',
+                                style: const TextStyle(
+                                    fontSize: 10, color: muted)),
                             const SizedBox(height: 5),
                             Container(
                               height: 105 * dayCounts[i] / maxCount + 4,
-                              decoration: BoxDecoration(color: orangeLight, borderRadius: BorderRadius.circular(7)),
+                              decoration: BoxDecoration(
+                                  color: orangeLight,
+                                  borderRadius: BorderRadius.circular(7)),
                             ),
                             const SizedBox(height: 7),
-                            Text(['S', 'T', 'Q', 'Q', 'S', 'S', 'D'][DateTime.now().subtract(Duration(days: 6 - i)).weekday - 1], style: const TextStyle(fontSize: 10, color: muted)),
+                            Text(
+                                ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'][
+                                    DateTime.now()
+                                            .subtract(Duration(days: 6 - i))
+                                            .weekday -
+                                        1],
+                                style: const TextStyle(
+                                    fontSize: 10, color: muted)),
                           ],
                         ),
                       ),
@@ -2367,18 +2845,21 @@ class StatisticsScreen extends StatelessWidget {
           ),
           section('Alimentos mais utilizados'),
           if (rankedFoods.isEmpty)
-            const Panel(child: Text('Conclua ciclos para acompanhar seus alimentos mais utilizados.', style: TextStyle(color: muted, fontSize: 13)))
+            const Panel(
+                child: Text(
+                    'Conclua ciclos para acompanhar seus alimentos mais utilizados.',
+                    style: TextStyle(color: muted, fontSize: 13)))
           else
             ...rankedFoods.map((entry) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: InfoRow(entry.key, '${entry.value} ${entry.value == 1 ? 'ciclo' : 'ciclos'} concluídos'),
-            )),
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: InfoRow(entry.key,
+                      '${entry.value} ${entry.value == 1 ? 'ciclo' : 'ciclos'} concluídos'),
+                )),
         ],
       ),
     );
   }
 }
-
 
 class _Metric extends StatelessWidget {
   final String value;
@@ -2393,10 +2874,14 @@ class _Metric extends StatelessWidget {
         children: [
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text(value, style: const TextStyle(fontSize: 25, color: orange, fontWeight: FontWeight.w800)),
+            child: Text(value,
+                style: const TextStyle(
+                    fontSize: 25, color: orange, fontWeight: FontWeight.w800)),
           ),
           const SizedBox(height: 4),
-          Text(label, textAlign: TextAlign.center, style: const TextStyle(color: muted, fontSize: 10)),
+          Text(label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: muted, fontSize: 10)),
         ],
       ),
     );
@@ -2414,19 +2899,43 @@ class ProfileScreen extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Center(child: CircleAvatar(radius: 44, backgroundColor: Color(0xFFFFE8DD), child: Icon(Icons.person_rounded, color: orange, size: 46))),
+          const Center(
+              child: CircleAvatar(
+                  radius: 44,
+                  backgroundColor: Color(0xFFFFE8DD),
+                  child: Icon(Icons.person_rounded, color: orange, size: 46))),
           gap(12),
-          Center(child: Text(signedInName, textAlign: TextAlign.center, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: ink))),
-          Center(child: Text(signedInHandle, style: const TextStyle(color: muted))),
-          if (activeAccount != null) Center(child: Text(activeAccount!.email, style: const TextStyle(color: muted, fontSize: 12))),
+          Center(
+              child: Text(signedInName,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.w900, color: ink))),
+          Center(
+              child:
+                  Text(signedInHandle, style: const TextStyle(color: muted))),
+          if (activeAccount != null)
+            Center(
+                child: Text(activeAccount!.email,
+                    style: const TextStyle(color: muted, fontSize: 12))),
           section('Minha conta'),
-          InfoRow('Colaboradores', 'Gerencie quem acompanha sua secadora', trailing: '›', trailingColor: orange, onTap: () => go(context, const CollaboratorsScreen())),
+          InfoRow('Colaboradores', 'Gerencie quem acompanha sua secadora',
+              trailing: '›',
+              trailingColor: orange,
+              onTap: () => go(context, const CollaboratorsScreen())),
           gap(10),
-          InfoRow('Estatísticas', 'Veja os resultados dos seus ciclos', trailing: '›', trailingColor: orange, onTap: () => go(context, const StatisticsScreen())),
+          InfoRow('Estatísticas', 'Veja os resultados dos seus ciclos',
+              trailing: '›',
+              trailingColor: orange,
+              onTap: () => go(context, const StatisticsScreen())),
           gap(10),
-          InfoRow('Configurações', 'Preferências e segurança', trailing: '›', trailingColor: orange, onTap: () => go(context, const SettingsScreen())),
+          InfoRow('Configurações', 'Preferências e segurança',
+              trailing: '›',
+              trailingColor: orange,
+              onTap: () => go(context, const SettingsScreen())),
           gap(10),
-          PrimaryButton('Adicionar amigo', icon: Icons.person_add_alt_1, onPressed: () => go(context, const AddFriendScreen())),
+          PrimaryButton('Adicionar amigo',
+              icon: Icons.person_add_alt_1,
+              onPressed: () => go(context, const AddFriendScreen())),
           gap(10),
           TextButton.icon(
             onPressed: () {
@@ -2434,11 +2943,11 @@ class ProfileScreen extends StatelessWidget {
               replace(context, const LoginScreen());
             },
             icon: const Icon(Icons.logout_rounded, color: Colors.red),
-            label: const Text('Sair da conta', style: TextStyle(color: Colors.red)),
+            label: const Text('Sair da conta',
+                style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
   }
 }
-
